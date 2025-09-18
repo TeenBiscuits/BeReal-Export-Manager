@@ -138,7 +138,16 @@ class BeRealExporter:
 
       if self.time_span[0] <= memory_dt <= self.time_span[1]:
         for img_name, type in zip(img_names, types):
-          old_img_name = os.path.join(self.bereal_path, f"Photos/post/{self.get_img_filename(memory[type[0]])}")
+          
+          # Recreating local photo path from json file
+          json_path = memory[type[0]]['path'].lstrip("/")
+          parts = json_path.split("/")
+          if len(parts) > 3 and parts[0] == "Photos":
+              clean_path = os.path.join(parts[0], parts[2], *parts[3:])
+          else:
+              clean_path = json_path  # fallback
+          old_img_name = os.path.join(self.bereal_path, clean_path)
+          
           self.verbose_msg(f"Export Memory nr {i} {type[0]}:")
           if 'location' in memory:
             self.export_img(old_img_name, img_name, memory_dt, memory['location'])
