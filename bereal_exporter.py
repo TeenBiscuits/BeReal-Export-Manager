@@ -109,14 +109,14 @@ class BeRealExporter:
           })
       else:
           self.verbose_msg(f"Add metadata to image:\n - DateTimeOriginal={img_dt}")
- 
-      if self.exiftool_path:
-        et(executable=self.exiftool_path).set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
-      else:
-        et().set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
-    else:
-      self.verbose_msg(f"File {old_img_name} not found. Skipping this image.")
 
+      ext = os.path.splitext(img_name)[1].lower()
+      if ext in [".jpg", ".jpeg", ".tif", ".tiff"]:
+        with et(executable=self.exiftool_path) if self.exiftool_path else et() as exif:
+          exif.set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
+
+      else:
+        self.verbose_msg(f"Skipping EXIF metadata for {img_name} (unsupported format: {ext})")
 
   def export_memories(self, memories: list):
     """
