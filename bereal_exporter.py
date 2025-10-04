@@ -4,6 +4,7 @@ from exiftool import ExifToolHelper as et
 from shutil import copy2 as cp
 from datetime import datetime as dt
 import argparse
+from PIL import Image
 
 
 
@@ -99,7 +100,14 @@ class BeRealExporter:
     self.verbose_msg(f"Export {old_img_name} image to {img_name}")
 
     if os.path.isfile(old_img_name):
-      cp(old_img_name, img_name)
+      # Handling different photo formats
+      ext = os.path.splitext(old_img_name)[1].lower()
+      if ext == ".webp":
+        cp(old_img_name, img_name)
+      else:
+        with Image.open(old_img_name) as im:
+          im.save(img_name, "WEBP", quality=95)
+
       tags = {"DateTimeOriginal": img_dt.strftime("%Y:%m:%d %H:%M:%S")}
       if img_location:
           self.verbose_msg(f"Add metadata to image:\n - DateTimeOriginal={img_dt}\n - GPS=({img_location['latitude']}, {img_location['longitude']})")
