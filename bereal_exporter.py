@@ -104,7 +104,7 @@ class BeRealExporter:
       ext = os.path.splitext(old_img_name)[1].lower()
       if ext == ".webp":
         cp(old_img_name, img_name)
-      else:
+      elif ext in [".jpg", ".jpeg", ".tif", ".tiff"]:
         with Image.open(old_img_name) as im:
           im.save(img_name, "WEBP", quality=95)
 
