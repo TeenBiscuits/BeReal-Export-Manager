@@ -107,19 +107,13 @@ class BeRealExporter:
 
     # Video and image formats supported
     video_exts = [".mp4", ".mov", ".avi", ".mkv", ".m4v", ".hevc", ".webm"]
-    image_exts = [".jpg", ".jpeg", ".tif", ".tiff", ".png", ".webp"]
+    image_exts = [".jpg", ".jpeg", ".tif", ".tiff", ".png", ".heic", ".webp"]
 
-    if ext in video_exts:
-      cp(old_img_name, img_name)
-      self.verbose_msg(f"Copied video file ({ext}) without metadata")
+    cp(old_img_name, img_name)
+    self.verbose_msg(f"Copied file ({ext})")
 
-    elif ext == ".webp":
-      cp(old_img_name, img_name)
-
-    elif ext in [".jpg", ".jpeg", ".tif", ".tiff", ".png"]:
-      with Image.open(old_img_name) as im:
-        im.save(img_name, "WEBP", quality=95)
-
+    # For .webp images only, try to add EXIF metadata
+    if ext == ".webp":
       tags = {"DateTimeOriginal": img_dt.strftime("%Y:%m:%d %H:%M:%S")}
       if img_location:
           self.verbose_msg(f"Add metadata to image:\n - DateTimeOriginal={img_dt}\n - GPS=({img_location['latitude']}, {img_location['longitude']})")
@@ -130,12 +124,12 @@ class BeRealExporter:
       else:
           self.verbose_msg(f"Add metadata to image:\n - DateTimeOriginal={img_dt}")
 
-      with et(executable=self.exiftool_path) if self.exiftool_path else et() as exif:
-        exif.set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
-
-    else:
-      self.verbose_msg(f"Skipping unsupported format of {img_name} : {ext}")
-
+      try:
+        with et(executable=self.exiftool_path) if self.exiftool_path else et() as exif:
+          exif.set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
+      except Exception as e:
+        self.verbose_msg(f"Could not write EXIF to {img_name}: {e}")
+  
   def export_memories(self, memories: list):
     """
     Exports all memories from the Photos/post directory to the corresponding output folder.
