@@ -95,16 +95,28 @@ class BeRealExporter:
 
   def export_img(self, old_img_name: str, img_name: str, img_dt: dt, img_location=None):
     """
-    Makes a copy of the image and adds EXIF tags to the image.
+    Makes a copy of the image or video and adds EXIF tags to supported formats.
     """
     self.verbose_msg(f"Export {old_img_name} image to {img_name}")
 
-    if os.path.isfile(old_img_name):
-      # Handling different photo formats
-      ext = os.path.splitext(old_img_name)[1].lower()
-      if ext == ".webp":
+    if not os.path.isfile(old_img_name):
+      self.verbose_msg(f"File not found: {old_img_name}")
+      return
+
+    ext = os.path.splitext(old_img_name)[1].lower()
+
+    # Video and image formats supported
+    video_exts = [".mp4", ".mov", ".avi", ".mkv", ".m4v", ".hevc", ".webm"]
+    image_exts = [".jpg", ".jpeg", ".tif", ".tiff", ".png", ".webp"]
+
+    if ext in video_exts:
+      cp(old_img_name, img_name)
+      self.verbose_msg(f"Copied video file ({ext}) without metadata")
+
+      elif ext == ".webp":
         cp(old_img_name, img_name)
-      elif ext in [".jpg", ".jpeg", ".tif", ".tiff"]:
+
+      elif ext in [".jpg", ".jpeg", ".tif", ".tiff", ".png"]:
         with Image.open(old_img_name) as im:
           im.save(img_name, "WEBP", quality=95)
 
@@ -118,13 +130,11 @@ class BeRealExporter:
       else:
           self.verbose_msg(f"Add metadata to image:\n - DateTimeOriginal={img_dt}")
 
-      ext = os.path.splitext(img_name)[1].lower()
-      if ext in [".jpg", ".jpeg", ".tif", ".tiff"]:
-        with et(executable=self.exiftool_path) if self.exiftool_path else et() as exif:
-          exif.set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
+      with et(executable=self.exiftool_path) if self.exiftool_path else et() as exif:
+        exif.set_tags(img_name, tags=tags, params=["-P", "-overwrite_original"])
 
-      else:
-        self.verbose_msg(f"Skipping EXIF metadata for {img_name} (unsupported format: {ext})")
+    else:
+      self.verbose_msg(f"Skipping unsupported format of {img_name} : {ext}")
 
   def export_memories(self, memories: list):
     """
