@@ -113,12 +113,12 @@ class BeRealExporter:
       cp(old_img_name, img_name)
       self.verbose_msg(f"Copied video file ({ext}) without metadata")
 
-      elif ext == ".webp":
-        cp(old_img_name, img_name)
+    elif ext == ".webp":
+      cp(old_img_name, img_name)
 
-      elif ext in [".jpg", ".jpeg", ".tif", ".tiff", ".png"]:
-        with Image.open(old_img_name) as im:
-          im.save(img_name, "WEBP", quality=95)
+    elif ext in [".jpg", ".jpeg", ".tif", ".tiff", ".png"]:
+      with Image.open(old_img_name) as im:
+        im.save(img_name, "WEBP", quality=95)
 
       tags = {"DateTimeOriginal": img_dt.strftime("%Y:%m:%d %H:%M:%S")}
       if img_location:
