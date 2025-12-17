@@ -1,1 +1,2 @@
-Pillow pyexiftool
+Pillow
+pyexiftool
