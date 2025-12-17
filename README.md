@@ -1,4 +1,4 @@
-# BeReal Exporter
+# BeReal Export Manager
 
 > [!IMPORTANT] 
 >This python script doesn't export photos and realmojis from the social media platform BeReal directly for that, you have to make a request to the BeReal. See the [how to guide further down](#request-to-bereal-your-data).
@@ -133,6 +133,8 @@ python bereal_exporter.py [OPTIONS]
     ```
 
 6. Export posts only:
+    > [!TIP] 
+    > In my experience, the posts folder contained all my bereals and was redundant with the memories folder, so this would be the most useful command for me, but check how your export was done.
     ```sh
     python bereal_exporter.py --no-memories --no-realmojis
     ```
